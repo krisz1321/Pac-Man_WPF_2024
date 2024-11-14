@@ -14,5 +14,6 @@ namespace Pac_Man_WPF_2024
         public int GhostCount { get; set; } = 4;                   // Szellemek száma a pályán
         public int Lives { get; set; } = 3;                        // Kezdő élet szám
         public int CellSize { get; set; } = 50;                    // Cella mérete (pixelekben)
+        public bool Horror { get; set; } = false;
     }
 }
