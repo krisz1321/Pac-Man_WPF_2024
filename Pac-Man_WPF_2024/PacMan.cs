@@ -11,6 +11,7 @@ namespace Pac_Man_WPF_2024
 {
     public class PacMan
     {
+        //buzivagyok
         public int X { get; set; }
         public int Y { get; set; }
         public int Size { get; set; } = 50;
