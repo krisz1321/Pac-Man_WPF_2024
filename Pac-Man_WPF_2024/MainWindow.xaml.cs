@@ -42,9 +42,10 @@ namespace Pac_Man_WPF_2024
         public MainWindow()
         {
             InitializeComponent();
-
+            Settings s = new Settings();
+            s.ShowDialog();
             inputHandler = new InputHandler();
-            settings = new GameSettings(); // Alapértelmezett beállítások
+            settings = s.settings; // Alapértelmezett beállítások
             DrawMap();
 
 
