@@ -15,7 +15,7 @@ namespace Pac_Man_WPF_2024
         public int X { get; set; }
         public int Y { get; set; }
         public int Size { get; set; } = 50;
-        public Brush Color { get; set; } = Brushes.Yellow;
+        public Brush Color { get; set; } = Brushes.Red;
 
         public Ellipse Shape { get; private set; }
 
