@@ -8,6 +8,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace Pac_Man_WPF_2024
 {
@@ -38,22 +39,65 @@ namespace Pac_Man_WPF_2024
         private GameSettings settings;
         private PacMan pacMan;
         private InputHandler inputHandler;
+        private List<Ghost> ghosts;
+        private DispatcherTimer timer;
 
         public MainWindow()
         {
             InitializeComponent();
-
+            settings = new GameSettings();
             inputHandler = new InputHandler();
-            settings = new GameSettings(); // Alapértelmezett beállítások
+            ghosts = new List<Ghost>(); // Initialize ghost list
             DrawMap();
 
+            // Create PacMan and add it to the Canvas
+            pacMan = new PacMan(1, 1);
+            GameCanvas.Children.Add(pacMan.Shape);
 
+            // Create ghosts and add them to the canvas
+            ghosts.Add(new Ghost(10, 4, Brushes.Blue, 1)); // Example ghost at (10,4)
 
-            // PacMan létrehozása és hozzáadása a Canvas-hoz
-            
-            pacMan = new PacMan(1, 1);  // Kezdő pozíció
-            GameCanvas.Children.Add(pacMan.Shape); // PacMan hozzáadása a Canvas-hoz
+            // Add ghost shapes to the canvas
+            foreach (var ghost in ghosts)
+            {
+                var ghostShape = new Ellipse
+                {
+                    Width = settings.CellSize,
+                    Height = settings.CellSize,
+                    Fill = ghost.Color
+                };
+                Canvas.SetLeft(ghostShape, ghost.X * settings.CellSize);
+                Canvas.SetTop(ghostShape, ghost.Y * settings.CellSize);
+                GameCanvas.Children.Add(ghostShape);
+            }
+
+            // Set up the timer for updating ghost movement
+            timer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(200) // Update every 200ms
+            };
+            timer.Tick += Timer_Tick;
+            timer.Start();
         }
+
+
+        private void Timer_Tick(object sender, EventArgs e)
+        {
+            // Move each ghost
+            foreach (var ghost in ghosts)
+            {
+                ghost.Move(map); // Move ghost based on the current map
+                // Update ghost position on the canvas
+                var ghostShape = GameCanvas.Children.OfType<Ellipse>()
+                                                     .FirstOrDefault(g => g.Fill == ghost.Color);
+                if (ghostShape != null)
+                {
+                    Canvas.SetLeft(ghostShape, ghost.X * settings.CellSize);
+                    Canvas.SetTop(ghostShape, ghost.Y * settings.CellSize);
+                }
+            }
+        }
+
 
         private void DrawMap()
         {
