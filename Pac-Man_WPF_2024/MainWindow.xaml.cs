@@ -42,9 +42,24 @@ namespace Pac_Man_WPF_2024
         private List<Ghost> ghosts;
         private DispatcherTimer timer;
 
+        
+
+        // Eseménykezelő, hogy a zene ismételje magát, ha véget ér
+        private void BackgroundMusic_MediaEnded(object sender, RoutedEventArgs e)
+        {
+            backgroundMusic.Position = TimeSpan.Zero; // Kezdd előröl a zenét
+            backgroundMusic.Play(); // Ismételtesd meg a zenét
+        }
         public MainWindow()
         {
+            backgroundMusic = new MediaElement();
             InitializeComponent();
+            backgroundMusic.Source = new Uri("/Sounds/background.mp3", UriKind.Relative); // Add meg a zenefájl elérési útját
+            backgroundMusic.MediaEnded += BackgroundMusic_MediaEnded; // Ismételtesd meg a zenét a végén
+            backgroundMusic.Volume = 100;
+            backgroundMusic.Play(); // Kezd el lejátszani a zenét
+        
+        
             Settings s = new Settings();
             s.ShowDialog();
             inputHandler = new InputHandler();

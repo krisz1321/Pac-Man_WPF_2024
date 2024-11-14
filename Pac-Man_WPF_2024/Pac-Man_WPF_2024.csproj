@@ -12,6 +12,8 @@
   <ItemGroup>
     <None Remove="Pictures\horror_bg.png" />
     <None Remove="Pictures\normal_bg.png" />
+    <None Remove="Sounds\background.mp3" />
+    <None Remove="Sounds\Start.mp3" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,6 +21,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Pictures\normal_bg.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Sounds\background.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Sounds\Start.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>
