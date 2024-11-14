@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Media;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -9,6 +10,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using System.IO;
 
 namespace Pac_Man_WPF_2024
 {
@@ -42,23 +44,19 @@ namespace Pac_Man_WPF_2024
         private List<Ghost> ghosts;
         private DispatcherTimer timer;
 
-        
 
-        // Eseménykezelő, hogy a zene ismételje magát, ha véget ér
-        private void BackgroundMusic_MediaEnded(object sender, RoutedEventArgs e)
+
+        
+        private void PlaySound()
         {
-            backgroundMusic.Position = TimeSpan.Zero; // Kezdd előröl a zenét
-            backgroundMusic.Play(); // Ismételtesd meg a zenét
+            
+            string soundFilePath = "Sounds/background.wav"; 
+            SoundPlayer player = new SoundPlayer(soundFilePath);
+            player.Play();
         }
         public MainWindow()
         {
-            backgroundMusic = new MediaElement();
             InitializeComponent();
-            backgroundMusic.Source = new Uri("/Sounds/background.mp3", UriKind.Relative); // Add meg a zenefájl elérési útját
-            backgroundMusic.MediaEnded += BackgroundMusic_MediaEnded; // Ismételtesd meg a zenét a végén
-            backgroundMusic.Volume = 100;
-            backgroundMusic.Play(); // Kezd el lejátszani a zenét
-        
         
             Settings s = new Settings();
             s.ShowDialog();
@@ -66,6 +64,8 @@ namespace Pac_Man_WPF_2024
 
             settings = s.settings; // Alapértelmezett beállítások
             ghosts = new List<Ghost>(); // Initialize ghost list
+            Thread.Sleep(800);
+            PlaySound();
             DrawMap();
 
             // Create PacMan and add it to the Canvas
