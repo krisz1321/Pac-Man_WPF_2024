@@ -41,6 +41,8 @@ namespace Pac_Man_WPF_2024
         private InputHandler inputHandler;
         private List<Ghost> ghosts;
         private DispatcherTimer timer;
+        private List<Coin> coins; // Lista az érmékhez
+        private int coinsCollected; // Összegyűjtött érmék száma
 
         public MainWindow()
         {
@@ -136,6 +138,8 @@ namespace Pac_Man_WPF_2024
 
         private void DrawMap()
         {
+            coins = new List<Coin>();
+
             for (int y = 0; y < map.GetLength(0); y++)
             {
                 for (int x = 0; x < map.GetLength(1); x++)
@@ -149,43 +153,41 @@ namespace Pac_Man_WPF_2024
                     Canvas.SetLeft(rect, x * settings.CellSize);
                     Canvas.SetTop(rect, y * settings.CellSize);
                     GameCanvas.Children.Add(rect);
+
+                    if (map[y, x] == 0) // Ha az adott mező út
+                    {
+                        Coin coin = new Coin(x, y, settings.CellSize);
+                        coins.Add(coin);
+
+                        Canvas.SetLeft(coin.Shape, x * settings.CellSize + settings.CellSize / 4);
+                        Canvas.SetTop(coin.Shape, y * settings.CellSize + settings.CellSize / 4);
+                        GameCanvas.Children.Add(coin.Shape);
+                    }
                 }
             }
         }
 
-        private void Window_KeyDownRegi(object sender, KeyEventArgs e)
-        {
-            int deltaX = 0, deltaY = 0;
-
-            // Nyílbillentyűk kezelése
-            switch (e.Key)
-            {
-                case Key.Up:
-                    deltaY = -1;
-                    break;
-                case Key.Down:
-                    deltaY = 1;
-                    break;
-                case Key.Left:
-                    deltaX = -1;
-                    break;
-                case Key.Right:
-                    deltaX = 1;
-                    break;
-            }
-
-            pacMan.Move(deltaX, deltaY, map); // PacMan mozgatása
-        } //törölni később
-
-
-
-        //commit köcsög geci csináld már meg
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
-            inputHandler.HandleKey(e.Key); // Handle the input key
+            inputHandler.HandleKey(e.Key);
 
-            pacMan.Move(inputHandler.DeltaX, inputHandler.DeltaY, map); // Move PacMan based on input
+            pacMan.Move(inputHandler.DeltaX, inputHandler.DeltaY, map);
+
+            // Ellenőrizni, hogy Pac-Man begyűjtött-e egy érmét
+            Coin coin = coins.FirstOrDefault(c => c.X == pacMan.X && c.Y == pacMan.Y);
+            if (coin != null)
+            {
+                coin.RemoveFromCanvas(GameCanvas);
+                coins.Remove(coin);
+                coinsCollected++;
+
+                // Frissíthetünk egy UI elemet, ha szeretnénk
+                //Title = $"Coins Collected: {coinsCollected}";
+                Title = $"Yellow Ball Hero’s Mystical Labyrinth Adventure 勇敢的饥饿者 - Coins Collected: {coinsCollected}";
+
+            }
         }
+
     }
 }
