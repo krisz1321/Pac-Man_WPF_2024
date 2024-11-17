@@ -15,7 +15,7 @@ namespace Pac_Man_WPF_2024
         public int Y { get; set; }
         public Ellipse Shape { get; set; }
 
-        public Coin(int x, int y, double size)
+        public Coin(int x, int y, double size, Brush color)
         {
             X = x;
             Y = y;
@@ -23,7 +23,7 @@ namespace Pac_Man_WPF_2024
             {
                 Width = size / 2,
                 Height = size / 2,
-                Fill = Brushes.Gold
+                Fill = color
             };
         }
 
@@ -32,5 +32,6 @@ namespace Pac_Man_WPF_2024
             canvas.Children.Remove(Shape);
         }
     }
+
 
 }

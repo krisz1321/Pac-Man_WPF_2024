@@ -53,6 +53,7 @@ namespace Pac_Man_WPF_2024
 
             settings = s.settings; // Alapértelmezett beállítások
             ghosts = new List<Ghost>(); // Initialize ghost list
+            settings.CoinColor = Brushes.YellowGreen; // Példa: az érmék piros színűek lesznek
             DrawMap();
 
             // Create PacMan and add it to the Canvas
@@ -156,7 +157,7 @@ namespace Pac_Man_WPF_2024
 
                     if (map[y, x] == 0) // Ha az adott mező út
                     {
-                        Coin coin = new Coin(x, y, settings.CellSize);
+                        Coin coin = new Coin(x, y, settings.CellSize, settings.CoinColor);
                         coins.Add(coin);
 
                         Canvas.SetLeft(coin.Shape, x * settings.CellSize + settings.CellSize / 4);
@@ -166,6 +167,7 @@ namespace Pac_Man_WPF_2024
                 }
             }
         }
+
 
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
