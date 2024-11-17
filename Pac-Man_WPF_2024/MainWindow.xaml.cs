@@ -1,5 +1,4 @@
-﻿using System.Media;
-using System.Text;
+﻿using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -10,7 +9,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
-using System.IO;
 
 namespace Pac_Man_WPF_2024
 {
@@ -44,28 +42,15 @@ namespace Pac_Man_WPF_2024
         private List<Ghost> ghosts;
         private DispatcherTimer timer;
 
-
-
-        
-        private void PlaySound()
-        {
-            
-            string soundFilePath = "Sounds/background.wav"; 
-            SoundPlayer player = new SoundPlayer(soundFilePath);
-            player.Play();
-        }
         public MainWindow()
         {
             InitializeComponent();
-        
             Settings s = new Settings();
             s.ShowDialog();
             inputHandler = new InputHandler();
 
             settings = s.settings; // Alapértelmezett beállítások
             ghosts = new List<Ghost>(); // Initialize ghost list
-            Thread.Sleep(800);
-            PlaySound();
             DrawMap();
 
             // Create PacMan and add it to the Canvas
@@ -105,6 +90,7 @@ namespace Pac_Man_WPF_2024
             foreach (var ghost in ghosts)
             {
                 ghost.Move(map); // Move ghost based on the current map
+
                 // Update ghost position on the canvas
                 var ghostShape = GameCanvas.Children.OfType<Ellipse>()
                                                      .FirstOrDefault(g => g.Fill == ghost.Color);
@@ -113,9 +99,40 @@ namespace Pac_Man_WPF_2024
                     Canvas.SetLeft(ghostShape, ghost.X * settings.CellSize);
                     Canvas.SetTop(ghostShape, ghost.Y * settings.CellSize);
                 }
+
+                // Check collision with Pac-Man
+                if (ghost.X == pacMan.X && ghost.Y == pacMan.Y)
+                {
+                    HandleCollision();
+                }
             }
         }
 
+        private void HandleCollision()
+        {
+            settings.Lives--;
+
+            if (settings.Lives <= 0)
+            {
+                // Játék vége
+                timer.Stop();
+                MessageBox.Show("Game Over! You have no lives left.", "Pac-Man", MessageBoxButton.OK, MessageBoxImage.Information);
+                Close(); // Kilépés a játékból
+            }
+            else
+            {
+                // Visszaállítás kezdőpozícióba
+                MessageBox.Show($"You lost a life! Remaining lives: {settings.Lives}", "Pac-Man", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ResetPacMan();
+            }
+        }
+
+        private void ResetPacMan()
+        {
+            pacMan.X = 1; // Kezdő X koordináta
+            pacMan.Y = 1; // Kezdő Y koordináta
+            pacMan.UpdatePosition();
+        }
 
         private void DrawMap()
         {
@@ -160,6 +177,9 @@ namespace Pac_Man_WPF_2024
             pacMan.Move(deltaX, deltaY, map); // PacMan mozgatása
         } //törölni később
 
+
+
+        //commit köcsög geci csináld már meg
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
