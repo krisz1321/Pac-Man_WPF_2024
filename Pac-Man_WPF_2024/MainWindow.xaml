@@ -4,12 +4,7 @@
         Title="Yellow Ball Hero’s Mystical Labyrinth Adventure 勇敢的饥饿者" Height="790" Width="815"
         KeyDown="Window_KeyDown">
     <Canvas Name="GameCanvas" Background="Black">
-        <Grid>
-            <MediaElement x:Name="backgroundMusic"
-                  LoadedBehavior="Manual"
-                  UnloadedBehavior="Manual"
-                  Width="0" Height="0" Volume="100"/>
-        </Grid>
+       
 
 
     </Canvas>

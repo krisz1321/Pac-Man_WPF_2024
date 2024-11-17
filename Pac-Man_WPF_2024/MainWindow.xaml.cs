@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Media;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -43,27 +44,53 @@ namespace Pac_Man_WPF_2024
         private DispatcherTimer timer;
         private List<Coin> coins; // Lista az érmékhez
         private int coinsCollected; // Összegyűjtött érmék száma
+        private MediaElement backgroundMusic; // Hátterezene
+
+        private void InitializeBackgroundMusic()
+        {
+
+            backgroundMusic = new MediaElement
+            {
+                Source = new Uri("Sounds/background.wav", UriKind.Relative),
+                LoadedBehavior = MediaState.Manual,
+                UnloadedBehavior = MediaState.Stop,
+                Volume = 0.5
+            };
+
+            GameCanvas.Children.Add(backgroundMusic);
+
+            backgroundMusic.MediaEnded += (s, e) =>
+            {
+                backgroundMusic.Position = TimeSpan.Zero;
+                backgroundMusic.Play();
+            };
+        }
+
+        private void PlaySound()
+        {
+            backgroundMusic.Play();
+        }
 
         public MainWindow()
         {
             InitializeComponent();
             Settings s = new Settings();
             s.ShowDialog();
+
             inputHandler = new InputHandler();
+            settings = s.settings;
+            ghosts = new List<Ghost>();
+            coins = new List<Coin>();
+            coinsCollected = 0;
 
-            settings = s.settings; // Alapértelmezett beállítások
-            ghosts = new List<Ghost>(); // Initialize ghost list
-            settings.CoinColor = Brushes.YellowGreen; // Példa: az érmék piros színűek lesznek
             DrawMap();
+            InitializeBackgroundMusic();
+            PlaySound();
 
-            // Create PacMan and add it to the Canvas
             pacMan = new PacMan(1, 1);
             GameCanvas.Children.Add(pacMan.Shape);
 
-            // Create ghosts and add them to the canvas
-            ghosts.Add(new Ghost(10, 4, Brushes.Blue, 1)); // Example ghost at (10,4)
-
-            // Add ghost shapes to the canvas
+            ghosts.Add(new Ghost(10, 4, Brushes.Blue, 1));
             foreach (var ghost in ghosts)
             {
                 var ghostShape = new Ellipse
@@ -77,10 +104,9 @@ namespace Pac_Man_WPF_2024
                 GameCanvas.Children.Add(ghostShape);
             }
 
-            // Set up the timer for updating ghost movement
             timer = new DispatcherTimer
             {
-                Interval = TimeSpan.FromMilliseconds(200) // Update every 200ms
+                Interval = TimeSpan.FromMilliseconds(200)
             };
             timer.Tick += Timer_Tick;
             timer.Start();
