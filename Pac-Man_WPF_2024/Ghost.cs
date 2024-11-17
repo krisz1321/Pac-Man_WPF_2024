@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Media;
 
 namespace Pac_Man_WPF_2024
@@ -33,14 +30,22 @@ namespace Pac_Man_WPF_2024
 
         public void Move(int[,] map)
         {
-            // Check if the ghost can continue moving in the same direction
-            if (CanMoveInDirection(X, Y, lastDirection, map))
+            // Check if the ghost is at an intersection
+            if (IsAtIntersection(X, Y, map))
             {
+                // At an intersection, pick a new direction from the available ones
+                int newDirection = GetSmartDirection(map);
+                MoveInDirection(newDirection);
+                lastDirection = newDirection; // Update the direction
+            }
+            else if (CanMoveInDirection(X, Y, lastDirection, map))
+            {
+                // Continue moving in the same direction if possible
                 MoveInDirection(lastDirection);
             }
             else
             {
-                // At a junction, pick a new direction from the available ones
+                // If can't move in the same direction, pick a new direction
                 int newDirection = GetSmartDirection(map);
                 MoveInDirection(newDirection);
                 lastDirection = newDirection; // Update the direction
@@ -87,6 +92,19 @@ namespace Pac_Man_WPF_2024
         {
             // Check if the position is valid and not a wall (assuming 1 represents a wall)
             return x >= 0 && y >= 0 && x < map.GetLength(1) && y < map.GetLength(0) && map[y, x] != 1;
+        }
+
+        private bool IsAtIntersection(int x, int y, int[,] map)
+        {
+            // Check if the current position is an intersection
+            int possibleDirections = 0;
+            if (CanMoveInDirection(x, y, 0, map)) possibleDirections++; // Up
+            if (CanMoveInDirection(x, y, 1, map)) possibleDirections++; // Down
+            if (CanMoveInDirection(x, y, 2, map)) possibleDirections++; // Left
+            if (CanMoveInDirection(x, y, 3, map)) possibleDirections++; // Right
+
+            // An intersection is where more than two directions are possible
+            return possibleDirections > 2;
         }
 
         // This method checks for available directions and makes a smarter choice
