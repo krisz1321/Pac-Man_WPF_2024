@@ -11,6 +11,9 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 
+
+
+
 namespace Pac_Man_WPF_2024
 {
     /// <summary>
@@ -45,6 +48,7 @@ namespace Pac_Man_WPF_2024
         private List<Coin> coins; // Lista az érmékhez
         private int coinsCollected; // Összegyűjtött érmék száma
         private MediaElement backgroundMusic; // Hátterezene
+        private List<Cherry> cherries; // Lista a cseresznyékhez
 
         private void InitializeBackgroundMusic()
         {
@@ -83,7 +87,11 @@ namespace Pac_Man_WPF_2024
             coins = new List<Coin>();
             coinsCollected = 0;
 
+            cherries = new List<Cherry>();
+
             DrawMap();
+            GenerateCherry();
+
             InitializeBackgroundMusic();
             PlaySound();
 
@@ -146,6 +154,20 @@ namespace Pac_Man_WPF_2024
                     HandleCollision();
                 }
             }
+
+            // Ellenőrizni, hogy Pac-Man begyűjtött-e egy cseresznyét
+            Cherry cherry = cherries.FirstOrDefault(c => c.X == pacMan.X && c.Y == pacMan.Y);
+            if (cherry != null)
+            {
+                cherry.RemoveFromCanvas(GameCanvas);
+                cherries.Remove(cherry);
+
+                // Növeld a pontszámot (pl. plusz 10 pont a cseresznyéért)
+                coinsCollected += 10;
+
+                Title = $"Yellow Ball Hero’s Mystical Labyrinth Adventure 勇敢的饥饿者 - Coins Collected: {coinsCollected}";
+            }
+
         }
 
         private void HandleCollision()
@@ -213,5 +235,32 @@ namespace Pac_Man_WPF_2024
             inputHandler.HandleKey(e.Key);
         }
 
+
+
+        private void GenerateCherry()
+        {
+            // Ellenőrizni, hogy vannak-e érmék, mielőtt próbálunk választani egyet
+            if (coins != null && coins.Count > 0)
+            {
+                Random random = new Random();
+                int randomIndex = random.Next(coins.Count);
+
+                // Cseresznye pozíció az érme helyén
+                Coin coin = coins[randomIndex];
+
+                // Töröld az érmét és cseréld cseresznyére
+                coin.RemoveFromCanvas(GameCanvas);
+                coins.Remove(coin);
+
+                Cherry cherry = new Cherry(coin.X, coin.Y, settings.CellSize);
+                cherries.Add(cherry);
+
+                // Helyezd el a cseresznyét a canvason
+                Canvas.SetLeft(cherry.Shape, cherry.X * settings.CellSize + settings.CellSize / 4);
+                Canvas.SetTop(cherry.Shape, cherry.Y * settings.CellSize + settings.CellSize / 4);
+                GameCanvas.Children.Add(cherry.Shape);
+            }
+
+        }
     }
 }
