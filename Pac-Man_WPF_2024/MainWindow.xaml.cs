@@ -115,12 +115,24 @@ namespace Pac_Man_WPF_2024
 
         private void Timer_Tick(object sender, EventArgs e)
         {
-            // Move each ghost
+            // Pac-Man mozgatása az aktuális irányba
+            pacMan.Move(inputHandler.DeltaX, inputHandler.DeltaY, map);
+
+            // Ellenőrizni, hogy Pac-Man begyűjtött-e egy érmét
+            Coin coin = coins.FirstOrDefault(c => c.X == pacMan.X && c.Y == pacMan.Y);
+            if (coin != null)
+            {
+                coin.RemoveFromCanvas(GameCanvas);
+                coins.Remove(coin);
+                coinsCollected++;
+
+                Title = $"Yellow Ball Hero’s Mystical Labyrinth Adventure 勇敢的饥饿者 - Coins Collected: {coinsCollected}";
+            }
+
+            // Ellenőrizni ütközést a szellemekkel
             foreach (var ghost in ghosts)
             {
-                ghost.Move(map); // Move ghost based on the current map
-
-                // Update ghost position on the canvas
+                ghost.Move(map); // Szellemek mozgatása
                 var ghostShape = GameCanvas.Children.OfType<Ellipse>()
                                                      .FirstOrDefault(g => g.Fill == ghost.Color);
                 if (ghostShape != null)
@@ -129,7 +141,6 @@ namespace Pac_Man_WPF_2024
                     Canvas.SetTop(ghostShape, ghost.Y * settings.CellSize);
                 }
 
-                // Check collision with Pac-Man
                 if (ghost.X == pacMan.X && ghost.Y == pacMan.Y)
                 {
                     HandleCollision();
@@ -198,23 +209,8 @@ namespace Pac_Man_WPF_2024
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
+            // Irány megváltoztatása
             inputHandler.HandleKey(e.Key);
-
-            pacMan.Move(inputHandler.DeltaX, inputHandler.DeltaY, map);
-
-            // Ellenőrizni, hogy Pac-Man begyűjtött-e egy érmét
-            Coin coin = coins.FirstOrDefault(c => c.X == pacMan.X && c.Y == pacMan.Y);
-            if (coin != null)
-            {
-                coin.RemoveFromCanvas(GameCanvas);
-                coins.Remove(coin);
-                coinsCollected++;
-
-                // Frissíthetünk egy UI elemet, ha szeretnénk
-                //Title = $"Coins Collected: {coinsCollected}";
-                Title = $"Yellow Ball Hero’s Mystical Labyrinth Adventure 勇敢的饥饿者 - Coins Collected: {coinsCollected}";
-
-            }
         }
 
     }
