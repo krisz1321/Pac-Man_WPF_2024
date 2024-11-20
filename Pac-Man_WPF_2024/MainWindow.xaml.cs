@@ -128,6 +128,7 @@ namespace Pac_Man_WPF_2024
 
             // Ellenőrizni, hogy Pac-Man begyűjtött-e egy érmét
             Coin coin = coins.FirstOrDefault(c => c.X == pacMan.X && c.Y == pacMan.Y);
+            
             if (coin != null)
             {
                 coin.RemoveFromCanvas(GameCanvas);
@@ -151,7 +152,7 @@ namespace Pac_Man_WPF_2024
 
                 if (ghost.X == pacMan.X && ghost.Y == pacMan.Y)
                 {
-                    HandleCollision();
+                    HandleCollision(ghost);
                 }
             }
 
@@ -162,6 +163,54 @@ namespace Pac_Man_WPF_2024
                 cherry.RemoveFromCanvas(GameCanvas);
                 cherries.Remove(cherry);
 
+
+
+
+                DispatcherTimer colorTimer = new DispatcherTimer();
+                colorTimer.Interval = TimeSpan.FromSeconds(0.5);
+                bool toggleColor = false; // To alternate between two colors
+                colorTimer.Tick += (s, e) =>
+                {
+                    // Alternate colors while ghosts are eatable
+                    foreach (var ghost in ghosts)
+                    {
+                        if (toggleColor)
+                            ghost.Color = Brushes.Gray; // Alternate color
+                        else
+                            ghost.Color = ghost.DefaultColor; // Base color
+                    }
+                    toggleColor = !toggleColor;
+                };
+
+                // Start the timer
+                colorTimer.Start();
+                foreach(Ghost g in ghosts)
+                { 
+                    g.Eatable = true;
+                }
+                    DispatcherTimer timer = new DispatcherTimer();
+                    timer.Interval = TimeSpan.FromSeconds(5);
+                    timer.Tick += (s, e) =>
+                    {
+                        // When the timer ends, make ghosts not eatable
+                        foreach (Ghost g in ghosts)
+                        { 
+                            g.Eatable = false;
+                        }
+                        timer.Stop(); // Stop the timer
+                        colorTimer.Stop();
+                    };
+
+                    // Start the timer
+                    timer.Start();
+
+
+
+
+
+
+
+
                 // Növeld a pontszámot (pl. plusz 10 pont a cseresznyéért)
                 coinsCollected += 10;
 
@@ -170,22 +219,27 @@ namespace Pac_Man_WPF_2024
 
         }
 
-        private void HandleCollision()
+        private void HandleCollision(Ghost g)
         {
-            settings.Lives--;
-
-            if (settings.Lives <= 0)
-            {
-                // Játék vége
-                timer.Stop();
-                MessageBox.Show("Game Over! You have no lives left.", "Pac-Man", MessageBoxButton.OK, MessageBoxImage.Information);
-                Close(); // Kilépés a játékból
-            }
+            if (g.Eatable == true)
+            { }
             else
             {
-                // Visszaállítás kezdőpozícióba
-                MessageBox.Show($"You lost a life! Remaining lives: {settings.Lives}", "Pac-Man", MessageBoxButton.OK, MessageBoxImage.Warning);
-                ResetPacMan();
+                settings.Lives--;
+
+                if (settings.Lives <= 0)
+                {
+                    // Játék vége
+                    timer.Stop();
+                    MessageBox.Show("Game Over! You have no lives left.", "Pac-Man", MessageBoxButton.OK, MessageBoxImage.Information);
+                    Close(); // Kilépés a játékból
+                }
+                else
+                {
+                    // Visszaállítás kezdőpozícióba
+                    MessageBox.Show($"You lost a life! Remaining lives: {settings.Lives}", "Pac-Man", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    ResetPacMan();
+                }
             }
         }
 
@@ -254,6 +308,7 @@ namespace Pac_Man_WPF_2024
 
                 Cherry cherry = new Cherry(coin.X, coin.Y, settings.CellSize);
                 cherries.Add(cherry);
+
 
                 // Helyezd el a cseresznyét a canvason
                 Canvas.SetLeft(cherry.Shape, cherry.X * settings.CellSize + settings.CellSize / 4);

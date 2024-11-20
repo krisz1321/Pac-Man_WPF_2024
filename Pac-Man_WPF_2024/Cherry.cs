@@ -14,11 +14,13 @@ namespace Pac_Man_WPF_2024
         public int X { get; set; }
         public int Y { get; set; }
         public Ellipse Shape { get; private set; }
+        public bool Eaten { get; set; }
 
         public Cherry(int x, int y, double size)
         {
             X = x;
             Y = y;
+            Eaten = false;
             Shape = new Ellipse
             {
                 Width = size * 0.6,

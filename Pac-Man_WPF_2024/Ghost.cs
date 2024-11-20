@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace Pac_Man_WPF_2024
 {
@@ -8,10 +9,12 @@ namespace Pac_Man_WPF_2024
     {
         public int Id { get; set; }
         public Brush Color { get; set; }
+        public Brush DefaultColor { get; set; }
         public int Speed { get; set; }
         public int X { get; set; }
         public int Y { get; set; }
         public int[,] SpawnCoordinates { get; set; }
+        public bool Eatable { get; set; }
 
         private Random random;
         private int lastDirection; // 0: up, 1: down, 2: left, 3: right
@@ -23,7 +26,8 @@ namespace Pac_Man_WPF_2024
             Color = color;
             Speed = speed;
             SpawnCoordinates = new int[,] { { spawnX, spawnY } };
-
+            Eatable = false;
+            DefaultColor = color;
             random = new Random();
             lastDirection = random.Next(4); // Initial random direction
         }
@@ -134,5 +138,6 @@ namespace Pac_Man_WPF_2024
             // If no direction is available, just return the last direction to avoid freezing
             return lastDirection;
         }
+        
     }
 }
