@@ -15,6 +15,8 @@ namespace Pac_Man_WPF_2024
         public int Speed { get; set; }
         public int X { get; set; }
         public int Y { get; set; }
+        public int previousX { get; set; }
+        public int previousY { get; set; }
         public int[,] SpawnCoordinates { get; set; }
         public bool Eatable { get; set; }
         public Ellipse Shape { get; set; }
@@ -37,16 +39,20 @@ namespace Pac_Man_WPF_2024
 
         public void Move(int[,] map)
         {
+            previousX = X;
+            previousY = Y;
             // Check if the ghost is at an intersection
             if (IsAtIntersection(X, Y, map))
             {
                 // At an intersection, pick a new direction from the available ones
+               
                 int newDirection = GetSmartDirection(map);
                 MoveInDirection(newDirection);
                 lastDirection = newDirection; // Update the direction
             }
             else if (CanMoveInDirection(X, Y, lastDirection, map))
             {
+
                 // Continue moving in the same direction if possible
                 MoveInDirection(lastDirection);
             }
@@ -57,6 +63,7 @@ namespace Pac_Man_WPF_2024
                 MoveInDirection(newDirection);
                 lastDirection = newDirection; // Update the direction
             }
+
         }
 
         private void MoveInDirection(int direction)

@@ -338,6 +338,10 @@ namespace Pac_Man_WPF_2024
                 {
                     HandleCollision(ghost);
                 }
+                else if(ghost.previousX == pacMan.previousX &&ghost.previousY == pacMan.previousY)
+                {
+                    HandleCollision(ghost);
+                }
             }
         }
 
