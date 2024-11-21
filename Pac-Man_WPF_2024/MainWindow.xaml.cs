@@ -164,7 +164,10 @@ namespace Pac_Man_WPF_2024
             foreach (var ghost in ghosts)
             {
                 ghost.Move(map); // Szellemek mozgatása
-                
+                if (ghost.previousX == pacMan.X && ghost.previousY == pacMan.Y && ghost.X == pacMan.previousX && ghost.Y == pacMan.previousY)
+                {
+                    HandleCollision(ghost);
+                }
                 Canvas.SetLeft(ghost.Shape, ghost.X * settings.CellSize);
                 Canvas.SetTop(ghost.Shape, ghost.Y * settings.CellSize);
 
@@ -338,10 +341,7 @@ namespace Pac_Man_WPF_2024
                 {
                     HandleCollision(ghost);
                 }
-                else if(ghost.previousX == pacMan.previousX &&ghost.previousY == pacMan.previousY)
-                {
-                    HandleCollision(ghost);
-                }
+                
             }
         }
 
