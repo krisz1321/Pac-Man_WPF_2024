@@ -30,6 +30,7 @@ namespace Pac_Man_WPF_2024
             DefaultColor = color;
             random = new Random();
             lastDirection = random.Next(4); // Initial random direction
+
         }
 
         public void Move(int[,] map)

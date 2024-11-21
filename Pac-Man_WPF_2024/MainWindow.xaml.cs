@@ -93,7 +93,7 @@ namespace Pac_Man_WPF_2024
             GenerateCherry();
 
             InitializeBackgroundMusic();
-            PlaySound();
+            //PlaySound();
 
             pacMan = new PacMan(1, 1);
             GameCanvas.Children.Add(pacMan.Shape);
@@ -196,6 +196,7 @@ namespace Pac_Man_WPF_2024
                         foreach (Ghost g in ghosts)
                         { 
                             g.Eatable = false;
+                 
                         }
                         timer.Stop(); // Stop the timer
                         colorTimer.Stop();
@@ -218,11 +219,30 @@ namespace Pac_Man_WPF_2024
             }
 
         }
+        private void GhostEaten(Ghost g)
+        {
+            g.X = 0;
+            g.Y = 0;
+            DispatcherTimer timer = new DispatcherTimer();
+            timer.Interval = TimeSpan.FromSeconds(5);
+            timer.Tick += (s, e) =>
+            {
+                // When the timer ends, make ghosts not eatable
+                
+                g.X = g.SpawnCoordinates[0, 0];
+                g.Y = g.SpawnCoordinates[0, 1];
+                timer.Stop(); // Stop the timer
+            };
 
+            // Start the timer
+            timer.Start();
+        }
         private void HandleCollision(Ghost g)
         {
             if (g.Eatable == true)
-            { }
+            {
+                GhostEaten(g);
+            }
             else
             {
                 settings.Lives--;
