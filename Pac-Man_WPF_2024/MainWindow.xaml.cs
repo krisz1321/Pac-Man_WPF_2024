@@ -307,6 +307,16 @@ namespace Pac_Man_WPF_2024
         {
             // Irány megváltoztatása
             inputHandler.HandleKey(e.Key);
+
+            // Ellenőrizni ütközést a szellemekkel
+            foreach (var ghost in ghosts)
+            {
+              
+                if (ghost.X == pacMan.X && ghost.Y == pacMan.Y)
+                {
+                    HandleCollision(ghost);
+                }
+            }
         }
 
 

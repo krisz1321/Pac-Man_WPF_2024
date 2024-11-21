@@ -36,5 +36,4 @@ namespace Pac_Man_WPF_2024
             canvas.Children.Remove(Shape);
         }
     }
-
 }
