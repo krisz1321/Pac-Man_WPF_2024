@@ -1,4 +1,6 @@
-﻿using System.Media;
+﻿using System.Drawing;
+using System.Media;
+using System.Runtime.InteropServices.JavaScript;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -49,6 +51,7 @@ namespace Pac_Man_WPF_2024
         private int coinsCollected; // Összegyűjtött érmék száma
         private MediaElement backgroundMusic; // Hátterezene
         private List<Cherry> cherries; // Lista a cseresznyékhez
+        private List<Ghost> defaultGhosts;
 
         private void InitializeBackgroundMusic()
         {
@@ -80,7 +83,11 @@ namespace Pac_Man_WPF_2024
             InitializeComponent();
             Settings s = new Settings();
             s.ShowDialog();
-
+            defaultGhosts = new List<Ghost>();
+            defaultGhosts.Add(new Ghost(10, 4, Brushes.Blue, 1));
+            defaultGhosts.Add(new Ghost(12, 11, Brushes.Green, 1));
+            defaultGhosts.Add(new Ghost(11, 10, Brushes.Yellow, 1));
+            defaultGhosts.Add(new Ghost(2, 11, Brushes.Purple, 1));
             inputHandler = new InputHandler();
             settings = s.settings;
             ghosts = new List<Ghost>();
@@ -90,7 +97,8 @@ namespace Pac_Man_WPF_2024
             cherries = new List<Cherry>();
 
             DrawMap();
-            GenerateCherry();
+            
+            
 
             InitializeBackgroundMusic();
             //PlaySound();
@@ -98,7 +106,8 @@ namespace Pac_Man_WPF_2024
             pacMan = new PacMan(1, 1);
             GameCanvas.Children.Add(pacMan.Shape);
 
-            ghosts.Add(new Ghost(10, 4, Brushes.Blue, 1));
+            CreateGhosts(settings.GhostCount);
+            
             foreach (var ghost in ghosts)
             {
                 var ghostShape = new Ellipse
@@ -110,6 +119,7 @@ namespace Pac_Man_WPF_2024
                 Canvas.SetLeft(ghostShape, ghost.X * settings.CellSize);
                 Canvas.SetTop(ghostShape, ghost.Y * settings.CellSize);
                 GameCanvas.Children.Add(ghostShape);
+                ghost.Shape = ghostShape;
             }
 
             timer = new DispatcherTimer
@@ -119,7 +129,15 @@ namespace Pac_Man_WPF_2024
             timer.Tick += Timer_Tick;
             timer.Start();
         }
-
+        private void CreateGhosts(int numberOfGhosts)
+        {
+            for (int i = 0; i < numberOfGhosts; i++)
+            {
+                ghosts.Add(defaultGhosts[i]);
+                GenerateCherry();
+            }
+        }
+        
 
         private void Timer_Tick(object sender, EventArgs e)
         {
@@ -137,18 +155,18 @@ namespace Pac_Man_WPF_2024
 
                 Title = $"Yellow Ball Hero’s Mystical Labyrinth Adventure 勇敢的饥饿者 - Coins Collected: {coinsCollected}";
             }
-
+            if (coins.Count == 0)
+            {
+                MessageBox.Show($"JÓÓÓÓÓÓÓÓÓÓÓÓÓÓÓÓ töki Pontszámod: {coinsCollected}");
+                this.Close();
+            }
             // Ellenőrizni ütközést a szellemekkel
             foreach (var ghost in ghosts)
             {
                 ghost.Move(map); // Szellemek mozgatása
-                var ghostShape = GameCanvas.Children.OfType<Ellipse>()
-                                                     .FirstOrDefault(g => g.Fill == ghost.Color);
-                if (ghostShape != null)
-                {
-                    Canvas.SetLeft(ghostShape, ghost.X * settings.CellSize);
-                    Canvas.SetTop(ghostShape, ghost.Y * settings.CellSize);
-                }
+                
+                Canvas.SetLeft(ghost.Shape, ghost.X * settings.CellSize);
+                Canvas.SetTop(ghost.Shape, ghost.Y * settings.CellSize);
 
                 if (ghost.X == pacMan.X && ghost.Y == pacMan.Y)
                 {
@@ -166,24 +184,16 @@ namespace Pac_Man_WPF_2024
 
 
 
-                DispatcherTimer colorTimer = new DispatcherTimer();
-                colorTimer.Interval = TimeSpan.FromSeconds(0.5);
-                bool toggleColor = false; // To alternate between two colors
-                colorTimer.Tick += (s, e) =>
+                
+                foreach (var ghost in ghosts)
                 {
-                    // Alternate colors while ghosts are eatable
-                    foreach (var ghost in ghosts)
-                    {
-                        if (toggleColor)
-                            ghost.Color = Brushes.Gray; // Alternate color
-                        else
-                            ghost.Color = ghost.DefaultColor; // Base color
-                    }
-                    toggleColor = !toggleColor;
-                };
+                    ghost.Shape.Fill = Brushes.Gray;
+                }
+
+                    
+                
 
                 // Start the timer
-                colorTimer.Start();
                 foreach(Ghost g in ghosts)
                 { 
                     g.Eatable = true;
@@ -196,10 +206,9 @@ namespace Pac_Man_WPF_2024
                         foreach (Ghost g in ghosts)
                         { 
                             g.Eatable = false;
-                 
+                            g.Shape.Fill = g.DefaultColor;
                         }
                         timer.Stop(); // Stop the timer
-                        colorTimer.Stop();
                     };
 
                     // Start the timer
@@ -221,27 +230,40 @@ namespace Pac_Man_WPF_2024
         }
         private void GhostEaten(Ghost g)
         {
-            g.X = 0;
-            g.Y = 0;
+
+            g.X = 1000;
+            g.Y = 1000;
+            // Start the timer
+            int i = 0;
             DispatcherTimer timer = new DispatcherTimer();
             timer.Interval = TimeSpan.FromSeconds(5);
             timer.Tick += (s, e) =>
             {
                 // When the timer ends, make ghosts not eatable
-                
-                g.X = g.SpawnCoordinates[0, 0];
-                g.Y = g.SpawnCoordinates[0, 1];
-                timer.Stop(); // Stop the timer
+
+                if (i == 0)
+                {
+                    g.X = g.SpawnCoordinates[0, 0];
+                    g.Y = g.SpawnCoordinates[0, 1];
+                    i++;
+                }
+                if (i == 1)
+                {
+                    GenerateCherry();
+                    timer.Stop(); // Stop the timer
+                }
             };
 
             // Start the timer
             timer.Start();
+
         }
         private void HandleCollision(Ghost g)
         {
             if (g.Eatable == true)
             {
                 GhostEaten(g);
+                coinsCollected += 50;
             }
             else
             {
@@ -278,7 +300,7 @@ namespace Pac_Man_WPF_2024
             {
                 for (int x = 0; x < map.GetLength(1); x++)
                 {
-                    Rectangle rect = new Rectangle
+                    System.Windows.Shapes.Rectangle rect = new System.Windows.Shapes.Rectangle
                     {
                         Width = settings.CellSize,
                         Height = settings.CellSize,

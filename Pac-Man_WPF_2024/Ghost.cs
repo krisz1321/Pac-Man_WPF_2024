@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Windows.Media;
 using System.Windows.Threading;
+using System.Windows.Shapes;
+
 
 namespace Pac_Man_WPF_2024
 {
@@ -15,7 +17,7 @@ namespace Pac_Man_WPF_2024
         public int Y { get; set; }
         public int[,] SpawnCoordinates { get; set; }
         public bool Eatable { get; set; }
-
+        public Ellipse Shape { get; set; }
         private Random random;
         private int lastDirection; // 0: up, 1: down, 2: left, 3: right
 
