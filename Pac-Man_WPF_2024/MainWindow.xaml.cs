@@ -106,7 +106,7 @@ namespace Pac_Man_WPF_2024
             
 
             InitializeBackgroundMusic();
-            //PlaySound();
+            //PlaySound();  //<----------zene
 
             pacMan = new PacMan(1, 1);
             GameCanvas.Children.Add(pacMan.Shape);
