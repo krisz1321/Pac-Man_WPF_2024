@@ -52,6 +52,8 @@ namespace Pac_Man_WPF_2024
         private MediaElement backgroundMusic; // Hátterezene
         private List<Cherry> cherries; // Lista a cseresznyékhez
         private List<Ghost> defaultGhosts;
+        private int horror_idozito;
+        private Image blackout;
 
         private void InitializeBackgroundMusic()
         {
@@ -80,6 +82,7 @@ namespace Pac_Man_WPF_2024
 
         public MainWindow()
         {
+            horror_idozito = 0;
             InitializeComponent();
             Settings s = new Settings();
             s.ShowDialog();
@@ -122,12 +125,24 @@ namespace Pac_Man_WPF_2024
                 ghost.Shape = ghostShape;
             }
 
-            timer = new DispatcherTimer
+            if (!settings.Horror)
             {
-                Interval = TimeSpan.FromMilliseconds(200)
-            };
-            timer.Tick += Timer_Tick;
-            timer.Start();
+                timer = new DispatcherTimer
+                {
+                    Interval = TimeSpan.FromMilliseconds(200)
+                };
+                timer.Tick += Timer_Tick;
+                timer.Start();
+            }
+            else
+            {
+                timer = new DispatcherTimer
+                {
+                    Interval = TimeSpan.FromMilliseconds(100)
+                };
+                timer.Tick += Timer_Tick_horror;
+                timer.Start();
+            }
         }
         private void CreateGhosts(int numberOfGhosts)
         {
@@ -263,27 +278,80 @@ namespace Pac_Man_WPF_2024
         }
         private void HandleCollision(Ghost g)
         {
-            if (g.Eatable == true)
+            
+            if (!settings.Horror)
             {
-                GhostEaten(g);
-                coinsCollected += 50;
-            }
-            else
-            {
-                settings.Lives--;
-
-                if (settings.Lives <= 0)
+                if (g.Eatable == true)
                 {
-                    // Játék vége
-                    timer.Stop();
-                    MessageBox.Show("Game Over! You have no lives left.", "Pac-Man", MessageBoxButton.OK, MessageBoxImage.Information);
-                    Close(); // Kilépés a játékból
+                    GhostEaten(g);
+                    coinsCollected += 50;
                 }
                 else
                 {
-                    // Visszaállítás kezdőpozícióba
-                    MessageBox.Show($"You lost a life! Remaining lives: {settings.Lives}", "Pac-Man", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    ResetPacMan();
+                    settings.Lives--;
+
+                    if (settings.Lives <= 0)
+                    {
+                        // Játék vége
+                        timer.Stop();
+                        MessageBox.Show("Game Over! You have no lives left.", "Pac-Man", MessageBoxButton.OK, MessageBoxImage.Information);
+                        Close(); // Kilépés a játékból
+                    }
+                    else
+                    {
+                        // Visszaállítás kezdőpozícióba
+                        MessageBox.Show($"You lost a life! Remaining lives: {settings.Lives}", "Pac-Man", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        ResetPacMan();
+                    }
+                }
+            }
+            else if(settings.Horror)
+            {
+                if (blackout != null)
+                    RemoveImage(blackout);
+                Image jumpscare = Jumpscare();
+                DispatcherTimer timer2 = new DispatcherTimer
+                {
+                    Interval = TimeSpan.FromMilliseconds(1000)
+                };
+                timer2.Tick += (s, e) =>
+                {
+                    RemoveImage(jumpscare);
+                    timer2.Stop(); // Stop the timer
+                };
+                timer2.Start();
+                if (g.Eatable == true)
+                {
+                    GhostEaten(g);
+                    coinsCollected += 50;
+                }
+                else
+                {
+                    timer.Tick += (s, e) =>
+                    {
+                        // When the timer ends, make ghosts not eatable
+                        foreach (Ghost g in ghosts)
+                        {
+                            g.Eatable = false;
+                            g.Shape.Fill = g.DefaultColor;
+                        }
+                        timer.Stop(); // Stop the timer
+                    };
+                    settings.Lives--;
+
+                    if (settings.Lives <= 0)
+                    {
+                        // Játék vége
+                        timer.Stop();
+                        MessageBox.Show("Game Over! You have no lives left.", "Pac-Man", MessageBoxButton.OK, MessageBoxImage.Information);
+                        Close(); // Kilépés a játékból
+                    }
+                    else
+                    {
+                        // Visszaállítás kezdőpozícióba
+                        MessageBox.Show($"You lost a life! Remaining lives: {settings.Lives}", "Pac-Man", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        ResetPacMan();
+                    }
                 }
             }
         }
@@ -373,5 +441,143 @@ namespace Pac_Man_WPF_2024
             }
 
         }
+        private void Timer_Tick_horror(object sender, EventArgs e)
+        {
+            
+            horror_idozito++;
+            if(horror_idozito==5 && blackout != null)
+            {
+                RemoveImage(blackout);
+            }
+            if(horror_idozito==20)
+            {
+                blackout=Blackout();
+                horror_idozito = 0;
+            }
+            // Pac-Man mozgatása az aktuális irányba
+            pacMan.Move(inputHandler.DeltaX, inputHandler.DeltaY, map);
+
+            // Ellenőrizni, hogy Pac-Man begyűjtött-e egy érmét
+            Coin coin = coins.FirstOrDefault(c => c.X == pacMan.X && c.Y == pacMan.Y);
+
+            if (coin != null)
+            {
+                coin.RemoveFromCanvas(GameCanvas);
+                coins.Remove(coin);
+                coinsCollected++;
+
+                Title = $"Yellow Ball Hero’s Mystical Labyrinth Adventure 勇敢的饥饿者 - Coins Collected: {coinsCollected}";
+            }
+            if (coins.Count == 0)
+            {
+                MessageBox.Show($"JÓÓÓÓÓÓÓÓÓÓÓÓÓÓÓÓ töki Pontszámod: {coinsCollected}");
+                this.Close();
+            }
+            // Ellenőrizni ütközést a szellemekkel
+            foreach (var ghost in ghosts)
+            {
+                ghost.Move(map); // Szellemek mozgatása
+                if (ghost.previousX == pacMan.X && ghost.previousY == pacMan.Y && ghost.X == pacMan.previousX && ghost.Y == pacMan.previousY)
+                {
+                    HandleCollision(ghost);
+                }
+                Canvas.SetLeft(ghost.Shape, ghost.X * settings.CellSize);
+                Canvas.SetTop(ghost.Shape, ghost.Y * settings.CellSize);
+
+                if (ghost.X == pacMan.X && ghost.Y == pacMan.Y)
+                {
+                    HandleCollision(ghost);
+                }
+            }
+
+            // Ellenőrizni, hogy Pac-Man begyűjtött-e egy cseresznyét
+            Cherry cherry = cherries.FirstOrDefault(c => c.X == pacMan.X && c.Y == pacMan.Y);
+            if (cherry != null)
+            {
+                cherry.RemoveFromCanvas(GameCanvas);
+                cherries.Remove(cherry);
+
+
+
+
+
+                foreach (var ghost in ghosts)
+                {
+                    ghost.Shape.Fill = Brushes.Gray;
+                }
+
+
+
+
+                // Start the timer
+                foreach (Ghost g in ghosts)
+                {
+                    g.Eatable = true;
+                }
+                DispatcherTimer timer = new DispatcherTimer();
+                timer.Interval = TimeSpan.FromSeconds(5);
+                timer.Tick += (s, e) =>
+                {
+                    // When the timer ends, make ghosts not eatable
+                    foreach (Ghost g in ghosts)
+                    {
+                        g.Eatable = false;
+                        g.Shape.Fill = g.DefaultColor;
+                    }
+                    timer.Stop(); // Stop the timer
+                };
+
+                // Start the timer
+                timer.Start();
+
+
+
+
+
+
+
+
+                // Növeld a pontszámot (pl. plusz 10 pont a cseresznyéért)
+                coinsCollected += 10;
+
+                Title = $"Yellow Ball Hero’s Mystical Labyrinth Adventure 勇敢的饥饿者 - Coins Collected: {coinsCollected}";
+            }
+
+        }
+        private Image Blackout()
+        {
+            Image newImage = new Image
+            {
+                Source = new BitmapImage(new Uri("pack://application:,,,/Pictures/black.png")), // Update path
+                Width = 1000,
+                Height = 1000,
+                Stretch = Stretch.UniformToFill
+            };
+
+            // Add the Image to the Canvas or other container
+            GameCanvas.Children.Add(newImage);
+            return newImage;
+        }
+        private void RemoveImage(Image newImage)
+        {
+            GameCanvas.Children.Remove(newImage);
+        
+        }
+
+        private Image Jumpscare()
+        {
+            Image newImage = new Image
+            {
+                Source = new BitmapImage(new Uri("pack://application:,,,/Pictures/jump.jpg")), // Update path
+                Width = 790,
+                Height = 815,
+                Stretch = Stretch.None
+            };
+
+            // Add the Image to the Canvas or other container
+            GameCanvas.Children.Add(newImage);
+            return newImage;
+        }
+
     }
 }

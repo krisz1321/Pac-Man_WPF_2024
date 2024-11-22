@@ -53,5 +53,24 @@ namespace Pac_Man_WPF_2024
             settings.Horror = horror;
             this.Close();
         }
+
+        private void Checked(object sender, RoutedEventArgs e)
+        {
+            this.Background = new ImageBrush
+            {
+                ImageSource = new BitmapImage(new Uri("pack://application:,,,/Pictures/horror_bg.png")),
+                Stretch = Stretch.UniformToFill
+            };
+        }
+
+        private void Unchecked(object sender, RoutedEventArgs e)
+        {
+            this.Background = new ImageBrush
+            {
+                ImageSource = new BitmapImage(new Uri("pack://application:,,,/Pictures/normal_bg.png")),
+                Stretch = Stretch.UniformToFill
+            };
+        }
+
     }
 }
