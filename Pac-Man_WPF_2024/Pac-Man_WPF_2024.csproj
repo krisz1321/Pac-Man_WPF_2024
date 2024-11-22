@@ -10,14 +10,22 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Pictures\black.png" />
     <None Remove="Pictures\horror_bg.png" />
+    <None Remove="Pictures\jump.jpg" />
     <None Remove="Pictures\normal_bg.png" />
     <None Remove="Sounds\background.wav" />
     <None Remove="Sounds\Start.wav" />
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Pictures\black.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Pictures\horror_bg.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Pictures\jump.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Pictures\normal_bg.png">

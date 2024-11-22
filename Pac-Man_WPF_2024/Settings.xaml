@@ -37,7 +37,7 @@
                 <ComboBoxItem>3</ComboBoxItem>
                 <ComboBoxItem>4</ComboBoxItem>
             </ComboBox>
-            <CheckBox Grid.Row="1" Grid.Column="0" Foreground="White" FontWeight="Bold" IsChecked="False" x:Name="cb_Horror" Content="恐怖模式(Fear Mode)" FontSize="24" Grid.ColumnSpan="2" Margin="0,94,0,0"  Grid.RowSpan="2" />
+            <CheckBox Grid.Row="1" Grid.Column="0" Foreground="White" FontWeight="Bold" IsChecked="False" x:Name="cb_Horror" Content="恐怖模式(Fear Mode)" FontSize="24" Grid.ColumnSpan="2" Margin="0,94,0,0"  Grid.RowSpan="2" Checked="Checked" Unchecked="Unchecked"/>
             <Button Grid.Row="2" Grid.Column="2" Content="开始" FontSize="40" FontWeight="Bold" Margin="10,10,10,10" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Click="Save" Opacity="0.795"/>
         </Grid>
     </Grid>
