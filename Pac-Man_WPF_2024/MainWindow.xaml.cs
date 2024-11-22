@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Diagnostics;
+using System.Drawing;
 using System.Media;
 using System.Runtime.InteropServices.JavaScript;
 using System.Text;
@@ -54,6 +55,7 @@ namespace Pac_Man_WPF_2024
         private List<Ghost> defaultGhosts;
         private int horror_idozito;
         private Image blackout;
+        private Image jumpscare;
 
         private void InitializeBackgroundMusic()
         {
@@ -253,9 +255,9 @@ namespace Pac_Man_WPF_2024
             g.Y = 1000;
             // Start the timer
             int i = 0;
-            DispatcherTimer timer = new DispatcherTimer();
-            timer.Interval = TimeSpan.FromSeconds(5);
-            timer.Tick += (s, e) =>
+            DispatcherTimer Cherry_timer = new DispatcherTimer();
+            Cherry_timer.Interval = TimeSpan.FromSeconds(5);
+            Cherry_timer.Tick += (s, e) =>
             {
                 // When the timer ends, make ghosts not eatable
 
@@ -268,17 +270,19 @@ namespace Pac_Man_WPF_2024
                 if (i == 1)
                 {
                     GenerateCherry();
-                    timer.Stop(); // Stop the timer
+                    Cherry_timer.Stop(); // Stop the timer
                 }
             };
 
             // Start the timer
-            timer.Start();
+            Cherry_timer.Start();
 
         }
         private void HandleCollision(Ghost g)
         {
-            
+            Debug.WriteLine($"Tick: horror_idozito={horror_idozito}, Lives={settings.Lives}, Coins={coins.Count}");
+
+
             if (!settings.Horror)
             {
                 if (g.Eatable == true)
@@ -309,34 +313,26 @@ namespace Pac_Man_WPF_2024
             {
                 if (blackout != null)
                     RemoveImage(blackout);
-                Image jumpscare = Jumpscare();
-                DispatcherTimer timer2 = new DispatcherTimer
-                {
-                    Interval = TimeSpan.FromMilliseconds(1000)
-                };
-                timer2.Tick += (s, e) =>
-                {
-                    RemoveImage(jumpscare);
-                    timer2.Stop(); // Stop the timer
-                };
-                timer2.Start();
+                
                 if (g.Eatable == true)
                 {
                     GhostEaten(g);
-                    coinsCollected += 50;
+                    coinsCollected += 75;
                 }
                 else
                 {
-                    timer.Tick += (s, e) =>
+                    jumpscare = Jumpscare();
+                    DispatcherTimer jumpscareTimer = new DispatcherTimer
                     {
-                        // When the timer ends, make ghosts not eatable
-                        foreach (Ghost g in ghosts)
-                        {
-                            g.Eatable = false;
-                            g.Shape.Fill = g.DefaultColor;
-                        }
-                        timer.Stop(); // Stop the timer
+                        Interval = TimeSpan.FromMilliseconds(1000)
                     };
+                    jumpscareTimer.Tick += (s, e) =>
+                    {
+                        RemoveImage(jumpscare);
+                        jumpscareTimer.Stop(); // Stop the timer
+                    };
+                    jumpscareTimer.Start();
+                    coinsCollected -= 50;
                     settings.Lives--;
 
                     if (settings.Lives <= 0)
@@ -514,9 +510,9 @@ namespace Pac_Man_WPF_2024
                 {
                     g.Eatable = true;
                 }
-                DispatcherTimer timer = new DispatcherTimer();
-                timer.Interval = TimeSpan.FromSeconds(5);
-                timer.Tick += (s, e) =>
+                DispatcherTimer eat_timer = new DispatcherTimer();
+                eat_timer.Interval = TimeSpan.FromSeconds(5);
+                eat_timer.Tick += (s, e) =>
                 {
                     // When the timer ends, make ghosts not eatable
                     foreach (Ghost g in ghosts)
@@ -524,11 +520,11 @@ namespace Pac_Man_WPF_2024
                         g.Eatable = false;
                         g.Shape.Fill = g.DefaultColor;
                     }
-                    timer.Stop(); // Stop the timer
+                    eat_timer.Stop(); // Stop the timer
                 };
 
                 // Start the timer
-                timer.Start();
+                eat_timer.Start();
 
 
 
